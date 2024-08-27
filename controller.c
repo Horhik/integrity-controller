@@ -25,7 +25,7 @@ int add_cl_entry(path_t path, FILE * control_list){
     // checking aren't entry already exsits
 
     if (check_cl_entry(path, control_list)){
-        printf("Entry already exists\n");
+        printf("Entry already exists: %s\n", path);
         return 0;
     }
 
@@ -44,6 +44,7 @@ int add_cl_entry(path_t path, FILE * control_list){
 
     fputs(str_entry, control_list);
     syslog(LOG_DEBUG, "Entry created");
+    printf("Entry registrated: %s\n", path);
 
     return 0;
 }
@@ -114,6 +115,7 @@ bool check_cl_entry(path_t path, FILE * control_list){
 }
 
 int modify_cl_entry(cl_entry_t entry, FILE * control_list){
+
     // TODO finish function
     return 0;
 }
