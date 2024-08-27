@@ -7,12 +7,13 @@ args_t parse_args(int argc, char **argv){
     args_t res;
     res.to_inspect = false;
     res.to_regist  = true;
-    res.path = "/tmp/popa.txt";
+    res.path = "/tmp/";
+
 
     return res;
 }
 
-bool path_is_correct(char * path){
+bool path_is_correct(path_t path){
 
     // TODO write function
     return true;
