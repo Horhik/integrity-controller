@@ -31,7 +31,7 @@ typedef struct args_t {
 
 // control list entry
 typedef struct cl_entry_t {
-    path_t path;
+    char path[PATH_MAX];
     char hash[HASH_SIZE_HEX];
 } cl_entry_t;
 
@@ -45,7 +45,7 @@ bool control_list_avaliable(FILE * control_list);
 
 cl_entry_t create_cl_entry(path_t path);
 int add_cl_entry(path_t path, FILE * control_list);
-cl_entry_t get_cl_entry(path_t path, FILE * control_list);
+void get_cl_entry(path_t path, FILE * control_list, cl_entry_t * cle);
 bool check_cl_entry(path_t path, FILE * control_list);
 
 int modify_cl_entry(cl_entry_t entry, FILE * control_list);

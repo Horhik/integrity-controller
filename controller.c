@@ -7,7 +7,7 @@ cl_entry_t create_cl_entry(path_t path){
     get_file_hash(path, cle.hash);
 
     // suppose abolute file path are given
-    cle.path = path;
+    strcpy(cle.path, path);
 
     return cle;
 }
@@ -39,30 +39,53 @@ int add_cl_entry(path_t path, FILE * control_list){
     return 0;
 }
 
-cl_entry_t get_cl_entry(path_t path, FILE * control_list){
-    // TODO finish function
-    cl_entry_t control_list_entry;
-    return control_list_entry;
-}
+void get_cl_entry(path_t _path, FILE * control_list, cl_entry_t *cle){
 
-bool check_cl_entry(path_t path, FILE * control_list){
+    char path[PATH_MAX];
+    realpath(_path, path);
+
 
     char buffer[MAX_ENTRY_SIZE];
 
     while (fgets(buffer, sizeof(buffer), control_list) != NULL) {
 
+
         char entry_path[PATH_MAX];
         strncpy(entry_path, buffer + HASH_SIZE_HEX + 1, PATH_MAX);
         entry_path[strlen(entry_path) - 1] = '\0';
 
+        char entry_hash[HASH_SIZE_HEX];
+        strncpy(entry_hash, buffer, HASH_SIZE_HEX);
+
+
+
+
         if (strcmp(entry_path, path) == 0){
             syslog(LOG_DEBUG, "Found %s in control list", path);
-            return true;
+
+
+            strcpy(cle -> hash, entry_hash);
+            strcpy(cle->path, entry_path);
+
+            return;
+
         }
+
 
     }
     syslog(LOG_DEBUG, "No found %s in control list", path);
-    return false;
+    cle = NULL;
+
+}
+
+bool check_cl_entry(path_t path, FILE * control_list){
+
+
+    cl_entry_t *cle;
+    get_cl_entry(path, control_list, cle);
+
+    if (cle == NULL) return false;
+    return true;
 }
 
 int modify_cl_entry(cl_entry_t entry, FILE * control_list){

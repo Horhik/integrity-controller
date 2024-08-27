@@ -35,20 +35,6 @@ int append_string(path_t * array[], path_t element, size_t *size ) {
     return 0;
 }
 
-int get_real_path(path_t path, char * new_path){
-    char _path[PATH_MAX];
-    realpath(path, _path);
-    strcat(_path, "/");
-
-    new_path = strdup(_path);
-
-    if (new_path == NULL) {
-        syslog(LOG_ERR, "Error allocating memory for new path");
-        return 1;
-    }
-    return 0;
-}
-
 
 
 int list_dir(path_t path, path_t * paths[], size_t *paths_size) {
@@ -60,7 +46,7 @@ int list_dir(path_t path, path_t * paths[], size_t *paths_size) {
 
 
 
-    syslog(LOG_DEBUG, "Fullpath is %s ", fullpath);
+    //syslog(LOG_DEBUG, "Fullpath is %s ", fullpath);
 
 
     // Open dir
@@ -122,7 +108,7 @@ void hash_to_hex(const unsigned char hash[SHA256_DIGEST_LENGTH], char *hexastr) 
 
 int get_file_hash(path_t path, char hash_hex[HASH_SIZE_HEX]){
 
-    char output[SHA256_DIGEST_LENGTH];
+    unsigned char output[SHA256_DIGEST_LENGTH];
 
     FILE *file = fopen(path, "rb");
     if (!file) {
@@ -162,7 +148,7 @@ int get_file_hash(path_t path, char hash_hex[HASH_SIZE_HEX]){
 
 int path_regist(path_t path){
 
-    syslog(LOG_INFO, "Registrating new entry: %s", path);
+    syslog(LOG_INFO, "Registrating new entry: %s\n\n\n", path);
     // Opening file
     FILE * fp;
     fp = fopen(path, "r");
@@ -173,24 +159,20 @@ int path_regist(path_t path){
         return 1;
     }
 
+    fclose(fp);
+
     FILE * control_list;
 
     control_list = fopen(CONTROL_LIST_PATH, "a+");
 
+
     // Checking are control list are avaliable
     if (!control_list_avaliable(control_list)){
 
-        syslog(LOG_ERR, "Control list %s is not avaliable");
-        return 1;
+        syslog(LOG_ERR, "Control list is not avaliable");
+        exit(1);
     }
 
-    // Checking are path already registered
-    if (check_cl_entry(path, control_list)){
-
-        syslog(LOG_INFO, "Path already registered. \nNothing to do.");
-        return 0;
-
-    }
 
     // registrating path
     if (is_directory(path)){
@@ -199,7 +181,9 @@ int path_regist(path_t path){
         path_t * paths = NULL;
         size_t paths_size = 0;
 
+
         list_dir(path, &paths, &paths_size);
+
 
         for(size_t i = 0; i < paths_size; i++){
 
@@ -221,7 +205,7 @@ int path_regist(path_t path){
 
 
 
-    fclose(fp);
+    fclose(control_list);
     return 0;
 }
 
