@@ -55,7 +55,10 @@ bool check_cl_entry(path_t path, FILE * control_list){
         strncpy(entry_path, buffer + HASH_SIZE_HEX + 1, PATH_MAX);
         entry_path[strlen(entry_path) - 1] = '\0';
 
-        if (strcmp(entry_path, path) == 0) return true;
+        if (strcmp(entry_path, path) == 0){
+            syslog(LOG_DEBUG, "Found %s in control list", path);
+            return true;
+        }
 
     }
     syslog(LOG_DEBUG, "No found %s in control list", path);
@@ -92,6 +95,7 @@ bool control_list_avaliable(FILE * control_list){
 int control(args_t args){
 
     syslog(LOG_INFO, "Parsing arguments");
+
     if (!path_is_correct(args.path)) {
 
         syslog(LOG_ERR, "Incorrect path");

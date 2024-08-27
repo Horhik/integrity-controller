@@ -3,7 +3,7 @@
 
 int main(int argc, char * argv[]){
 
-    openlog("FileController", LOG_CONS , LOG_USER);
+    openlog("FileController", LOG_CONS | LOG_PERROR , LOG_USER);
 
     syslog(LOG_INFO, "FileController had started");
     setlogmask(LOG_UPTO(LOG_DEBUG));

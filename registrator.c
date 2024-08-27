@@ -15,7 +15,6 @@ bool is_directory(path_t path) {
 
 int append_string(path_t * array[], path_t element, size_t *size ) {
 
-    syslog(LOG_INFO, "Appending string ");
     path_t * array_ptr  = realloc(*array, sizeof(path_t) * (*size + 1));
 
     if (array_ptr == NULL) {
@@ -170,7 +169,7 @@ int path_regist(path_t path){
 
     // Checking are path correct
     if (fp == NULL) {
-        syslog(LOG_ERR, "Wrong file path %s", path);
+        syslog(LOG_ERR, "No such file or directory: %s", path);
         return 1;
     }
 
@@ -181,14 +180,14 @@ int path_regist(path_t path){
     // Checking are control list are avaliable
     if (!control_list_avaliable(control_list)){
 
-        printf("\nControl list %s is not avaliable", CONTROL_LIST_PATH);
+        syslog(LOG_ERR, "Control list %s is not avaliable");
         return 1;
     }
 
     // Checking are path already registered
     if (check_cl_entry(path, control_list)){
 
-        printf("\nPath already registered. \nNothing to do. \nExiting.\n");
+        syslog(LOG_INFO, "Path already registered. \nNothing to do.");
         return 0;
 
     }
