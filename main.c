@@ -3,7 +3,10 @@
 
 int main(int argc, char * argv[]){
 
+    // switch to this line to print logs to stdout
     //openlog("FileController", LOG_CONS | LOG_PERROR , LOG_USER);
+    //
+
     openlog("FileController", LOG_CONS , LOG_USER);
 
     syslog(LOG_INFO, "FileController had started");

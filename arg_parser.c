@@ -13,7 +13,7 @@ args_t parse_args(int argc, char **argv){
     res.to_inspect = false;
 
     int i = 1;
-    while (i < argc - 1) {
+    while (i < argc) {
 
         char *arg = argv[i];
 

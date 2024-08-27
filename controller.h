@@ -15,7 +15,7 @@
 #include <syslog.h>
 
 #define CONTROL_LIST_PATH "control-list.txt"
-#define HASH_SIZE_HEX SHA256_DIGEST_LENGTH * 2
+#define HASH_SIZE_HEX SHA256_DIGEST_LENGTH * 2 + 1
 #define MAX_ENTRY_SIZE (PATH_MAX + HASH_SIZE_HEX + 1)
 #define MAX_TOKENS 2
 
@@ -46,10 +46,10 @@ bool control_list_avaliable(FILE * control_list);
 
 cl_entry_t create_cl_entry(path_t path);
 int add_cl_entry(path_t path, FILE * control_list);
-bool get_cl_entry(path_t path, FILE * control_list, cl_entry_t * cle);
-bool check_cl_entry(path_t path, FILE * control_list);
+int get_cl_entry(path_t path, FILE * control_list, cl_entry_t * cle);
+int check_cl_entry(path_t path, FILE * control_list);
 
-int modify_cl_entry(cl_entry_t entry, FILE * control_list);
+int modify_cl_entry(path_t path, int line, FILE * control_list);
 int delete_cl_entry(path_t path, FILE * control_list);
 
 int create_control_list(FILE * control_list);

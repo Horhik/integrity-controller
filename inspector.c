@@ -61,9 +61,9 @@ int path_inspect(path_t _path){
         cl_entry_t existing_cle;
         cl_entry_t *p_existing_cle = &existing_cle;
         syslog(LOG_DEBUG, "Getting entry for %s", path);
-        bool cle_exists = get_cl_entry(path, control_list, p_existing_cle);
+        int cle_exists = get_cl_entry(path, control_list, p_existing_cle);
 
-        if (!cle_exists){
+        if (cle_exists == -1){
             syslog(LOG_ERR, "File not found in control list");
             return -1;
         } else {
