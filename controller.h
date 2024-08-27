@@ -14,11 +14,14 @@
 
 #include <syslog.h>
 
-#define CONTROL_LIST_PATH "~/.config/file-controller-list.txt"
+#define CONTROL_LIST_PATH "control-list.txt"
+#define HASH_SIZE_HEX SHA256_DIGEST_LENGTH * 2
+#define MAX_ENTRY_SIZE (PATH_MAX + HASH_SIZE_HEX + 1)
+#define MAX_TOKENS 2
 
 typedef const char* path_t;
 
-typedef SHA256_CTX hash;
+typedef char hash;
 // command line arguments
 typedef struct args_t {
     bool to_regist;
@@ -28,8 +31,8 @@ typedef struct args_t {
 
 // control list entry
 typedef struct cl_entry_t {
-    path_t filepath;
-    hash filehash;
+    path_t path;
+    char hash[HASH_SIZE_HEX];
 } cl_entry_t;
 
 // arg_parser.c
@@ -55,7 +58,7 @@ int create_control_list(FILE * control_list);
 // registrator.c
 int path_regist(path_t path);
 int path_unregist(path_t path);
-hash get_file_hash(path_t path);
+int get_file_hash(path_t path, char hash[HASH_SIZE_HEX] );
 bool is_directory(path_t path);
 int regist_directory(path_t path);
 

@@ -7,7 +7,7 @@ args_t parse_args(int argc, char **argv){
     args_t res;
     res.to_inspect = false;
     res.to_regist  = true;
-    res.path = "/tmp/";
+    res.path = "/tmp";
 
 
     return res;

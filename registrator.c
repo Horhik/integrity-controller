@@ -36,6 +36,21 @@ int append_string(path_t * array[], path_t element, size_t *size ) {
     return 0;
 }
 
+int get_real_path(path_t path, char * new_path){
+    char _path[PATH_MAX];
+    realpath(path, _path);
+    strcat(_path, "/");
+
+    new_path = strdup(_path);
+
+    if (new_path == NULL) {
+        syslog(LOG_ERR, "Error allocating memory for new path");
+        return 1;
+    }
+    return 0;
+}
+
+
 
 int list_dir(path_t path, path_t * paths[], size_t *paths_size) {
 
@@ -43,6 +58,8 @@ int list_dir(path_t path, path_t * paths[], size_t *paths_size) {
     realpath(path, _path);
     strcat(_path, "/");
     const char * fullpath = _path;
+
+
 
     syslog(LOG_DEBUG, "Fullpath is %s ", fullpath);
 
@@ -80,6 +97,7 @@ int list_dir(path_t path, path_t * paths[], size_t *paths_size) {
                 return 1;
             }
 
+
             append_string(paths, new_path, paths_size);
 
         }
@@ -96,11 +114,49 @@ int regist_directory(path_t path){
     return 0;
 }
 
-hash get_file_hash(path_t path){
-    // TODO finish function
-    hash h;
-    return h ;
+void hash_to_hex(const unsigned char hash[SHA256_DIGEST_LENGTH], char *hexastr) {
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+        sprintf(hexastr + (i * 2), "%02x", hash[i]);
+    }
+    hexastr[SHA256_DIGEST_LENGTH * 2] = '\0'; // Null-terminate the string
 }
+
+int get_file_hash(path_t path, char hash_hex[HASH_SIZE_HEX]){
+
+    char output[SHA256_DIGEST_LENGTH];
+
+    FILE *file = fopen(path, "rb");
+    if (!file) {
+        perror("fopen");
+        return 1;
+    }
+
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+
+    const size_t buffer_size = 32768;
+    unsigned char *buffer = malloc(buffer_size);
+    if (!buffer) {
+        perror("malloc");
+        fclose(file);
+        return 1;
+    }
+
+    size_t bytes_read = 0;
+    while ((bytes_read = fread(buffer, 1, buffer_size, file))) {
+        SHA256_Update(&sha256, buffer, bytes_read);
+    }
+
+    SHA256_Final(output, &sha256);
+    hash_to_hex(output, hash_hex);
+
+
+    fclose(file);
+    free(buffer);
+    return 0;
+}
+
+
 
 
 
@@ -114,13 +170,12 @@ int path_regist(path_t path){
 
     // Checking are path correct
     if (fp == NULL) {
-
-        printf("\nSmth is wrong with a path\n");
-        syslog(LOG_ERR, "Wrong file path");
+        syslog(LOG_ERR, "Wrong file path %s", path);
         return 1;
     }
 
     FILE * control_list;
+
     control_list = fopen(CONTROL_LIST_PATH, "a+");
 
     // Checking are control list are avaliable
@@ -131,7 +186,7 @@ int path_regist(path_t path){
     }
 
     // Checking are path already registered
-    if (!check_cl_entry(path, control_list)){
+    if (check_cl_entry(path, control_list)){
 
         printf("\nPath already registered. \nNothing to do. \nExiting.\n");
         return 0;
@@ -156,6 +211,12 @@ int path_regist(path_t path){
     } else {
 
         syslog(LOG_DEBUG, "Registrating file: %s", path);
+        char _path[PATH_MAX];
+        realpath(path, _path);
+
+
+        add_cl_entry(_path, control_list);
+
 
     }
 
