@@ -145,7 +145,6 @@ int get_file_hash(path_t path, char hash_hex[HASH_SIZE_HEX]){
 
 
 
-
 int path_regist(path_t path){
 
     syslog(LOG_INFO, "Registrating new entry: %s\n\n\n", path);

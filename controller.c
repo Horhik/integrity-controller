@@ -2,13 +2,18 @@
 
 
 cl_entry_t create_cl_entry(path_t path){
-    // TODO finish function
+
     struct cl_entry_t cle;
-    get_file_hash(path, cle.hash);
+    char hash[HASH_SIZE_HEX];
+    get_file_hash(path, hash);
+    strcpy(cle.hash, hash);
 
     // suppose abolute file path are given
     strcpy(cle.path, path);
+    cle.path[PATH_MAX -1] = '\0';
+    cle.hash[HASH_SIZE_HEX -1] = '\0';
 
+    syslog(LOG_DEBUG, "NEW ENTRY: \nHash: %s \nPath: %s", cle.hash, cle.path);
     return cle;
 }
 
@@ -24,6 +29,9 @@ int add_cl_entry(path_t path, FILE * control_list){
         return 0;
     }
 
+
+
+    syslog(LOG_DEBUG, "Creating entry for %s", path);
     cl_entry_t entry = create_cl_entry(path);
     //printf("hash is: %s\n", hexhash);
     //printf("path is: %s\n", entry.path);
@@ -35,15 +43,17 @@ int add_cl_entry(path_t path, FILE * control_list){
 
 
     fputs(str_entry, control_list);
+    syslog(LOG_DEBUG, "Entry created");
 
     return 0;
 }
 
-void get_cl_entry(path_t _path, FILE * control_list, cl_entry_t *cle){
+bool get_cl_entry(path_t _path, FILE * control_list, cl_entry_t *cle){
 
     char path[PATH_MAX];
     realpath(_path, path);
 
+    cl_entry_t _cle;
 
     char buffer[MAX_ENTRY_SIZE];
 
@@ -55,37 +65,52 @@ void get_cl_entry(path_t _path, FILE * control_list, cl_entry_t *cle){
         entry_path[strlen(entry_path) - 1] = '\0';
 
         char entry_hash[HASH_SIZE_HEX];
-        strncpy(entry_hash, buffer, HASH_SIZE_HEX);
+        strncpy(entry_hash, buffer, HASH_SIZE_HEX -0);
+        entry_hash[strlen(entry_hash)] = '\0';
 
 
+        entry_path[PATH_MAX -1] = '\0';
+        entry_hash[HASH_SIZE_HEX -1] = '\0';
+
+        /*
+        syslog(LOG_DEBUG, "\n\n\n");
+        syslog(LOG_DEBUG, "BUFFER -%s- ", buffer);
+        syslog(LOG_DEBUG, "HASH   -%s- ", entry_hash);
+        syslog(LOG_DEBUG, "PATH   -%s- ", entry_path);
+        syslog(LOG_DEBUG, "\n\n\n");
+        */
 
 
         if (strcmp(entry_path, path) == 0){
             syslog(LOG_DEBUG, "Found %s in control list", path);
 
 
-            strcpy(cle -> hash, entry_hash);
-            strcpy(cle->path, entry_path);
+            strcpy(_cle.hash, entry_hash);
+            strcpy(_cle.path, entry_path);
 
-            return;
+            *cle = _cle;
+
+            return true;
 
         }
 
 
     }
-    syslog(LOG_DEBUG, "No found %s in control list", path);
-    cle = NULL;
+    syslog(LOG_DEBUG, "Not found %s in control list", path);
+    return false;
 
 }
 
 bool check_cl_entry(path_t path, FILE * control_list){
 
+    syslog(LOG_DEBUG, "Checking path %s in control list", path);
 
-    cl_entry_t *cle;
-    get_cl_entry(path, control_list, cle);
 
-    if (cle == NULL) return false;
-    return true;
+
+    cl_entry_t cle;
+
+    return get_cl_entry(path, control_list, &cle);
+
 }
 
 int modify_cl_entry(cl_entry_t entry, FILE * control_list){
