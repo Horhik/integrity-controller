@@ -1,47 +1,37 @@
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall  -Wunused-result
 LDFLAGS = -lcrypto -lc
-TARGET = bin/controller.o
+TARGET = bin/controller
 
 # Source files
 SRCS = main.c controller.c registrator.c inspector.c arg_parser.c
 
 # Object files
 OBJS = $(SRCS:.c=.o)
+OBJDIR = obj
 
 # Default target
 all: $(TARGET)
 
-# Link the object files to create the executable
+# Create the target directory if it doesn't exist and link the object files to create the executable
 $(TARGET): $(OBJS)
 	@mkdir -p bin
+	@mkdir -p $(OBJDIR)
 	@touch control-list.txt
-	$(CC) $(CFLAGS) main.o controller.o registrator.o inspector.o arg_parser.o $(LDFLAGS) -o bin/controller
+	$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) -o $(TARGET)
 
-# Compile each source file individually
-main.o: main.c
-	$(CC) $(CFLAGS) -c main.c -o main.o
-
-controller.o: controller.c
-	$(CC) $(CFLAGS) -c controller.c -o controller.o
-
-registrator.o: registrator.c
-	$(CC) $(CFLAGS) -c registrator.c -o registrator.o
-
-inspector.o: inspector.c
-	$(CC) $(CFLAGS) -c inspector.c -o inspector.o
-
-arg_parser.o: arg_parser.c
-	$(CC) $(CFLAGS) -c arg_parser.c -o arg_parser.o
+# Compile each source file individually and store object files in $(OBJDIR)
+$(OBJDIR)/%.o: %.c
+	@mkdir -p $(OBJDIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Clean up the build
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJDIR)/*.o $(TARGET)
 
 # Run the program with the specified arguments
 run: $(TARGET)
 	./bin/controller --help
 
 .PHONY: all clean run
-

@@ -1,5 +1,8 @@
 # File Controller
 
+File controller can recursive register files and track their integrity.
+
+
 ## Build and Run
 
 Install OpenSSL and run `make`.
@@ -23,3 +26,4 @@ If you're using Nix, you can use nix-shell to build and run the program with:
 nix-shell 
 ./bin/controller --help
 ```
+

@@ -45,6 +45,8 @@ int add_cl_entry(path_t path, FILE * control_list){
         if (!match(hash, cle.hash)){
 
         printf("REregistrating entry: %s\n", path);
+        // TODO implement
+
 
         /*fclose(control_list);
         FILE *fp = fopen(CONTROL_LIST_PATH, "r+");
