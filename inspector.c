@@ -39,12 +39,19 @@ int path_inspect(path_t _path){
 
         list_dir(path, &paths, &paths_size);
 
-
+        bool broken = false;
         for(size_t i = 0; i < paths_size; i++){
 
-            path_inspect(paths[i]);
+            if (!path_inspect(paths[i])){
+
+                syslog(LOG_INFO, "Integrity is broken!: %s", paths[i]);
+                broken=true;
+            }
 
         }
+
+        if (!broken)
+        syslog(LOG_INFO, "Integrity preserved!");
 
     } else {
 
@@ -52,26 +59,30 @@ int path_inspect(path_t _path){
 
 
         cl_entry_t existing_cle;
-        cl_entry_t *p_existing_cle = NULL;
-        get_cl_entry(path, control_list, p_existing_cle);
+        cl_entry_t *p_existing_cle = &existing_cle;
+        syslog(LOG_DEBUG, "Getting entry for %s", path);
+        bool cle_exists = get_cl_entry(path, control_list, p_existing_cle);
 
-        if (p_existing_cle == NULL){
+        if (!cle_exists){
             syslog(LOG_ERR, "File not found in control list");
-            exit(1);
-        }
-
-
-        cl_entry_t new_cle = create_cl_entry(path);
-
-        syslog(LOG_INFO, "E HASH %s", existing_cle.hash);
-        syslog(LOG_INFO, "O HASH %s", new_cle.hash);
-
-        if (match(existing_cle.hash, new_cle.hash)){
-            printf("MATCH: %s\n", path);
+            return -1;
         } else {
-            printf("NOT MATCH: %s\n", path);
-        }
 
+
+            cl_entry_t new_cle = create_cl_entry(path);
+
+            //syslog(LOG_INFO, "E HASH %s", existing_cle.hash);
+            //syslog(LOG_INFO, "O HASH %s", new_cle.hash);
+
+            if (match(existing_cle.hash, new_cle.hash)){
+                printf("File is correct: %s\n", path);
+                return 1;
+            } else {
+                printf("File had changed: %s\n", path);
+                return 0;
+            }
+
+        }
 
 
 

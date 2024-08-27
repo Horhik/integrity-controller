@@ -13,7 +13,7 @@ cl_entry_t create_cl_entry(path_t path){
     cle.path[PATH_MAX -1] = '\0';
     cle.hash[HASH_SIZE_HEX -1] = '\0';
 
-    syslog(LOG_DEBUG, "NEW ENTRY: \nHash: %s \nPath: %s", cle.hash, cle.path);
+    //syslog(LOG_DEBUG, "NEW ENTRY: \nHash: %s \nPath: %s", cle.hash, cle.path);
     return cle;
 }
 
@@ -61,7 +61,7 @@ bool get_cl_entry(path_t _path, FILE * control_list, cl_entry_t *cle){
 
 
         char entry_path[PATH_MAX];
-        strncpy(entry_path, buffer + HASH_SIZE_HEX + 1, PATH_MAX);
+        strncpy(entry_path, buffer + HASH_SIZE_HEX, PATH_MAX);
         entry_path[strlen(entry_path) - 1] = '\0';
 
         char entry_hash[HASH_SIZE_HEX];
